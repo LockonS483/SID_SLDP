@@ -8,7 +8,7 @@ void setup() {
   Serial.begin(9600);
 
   // set the data rate for the SoftwareSerial port
-  sSerial.begin(115200);
+  sSerial.begin(9600);
   Serial.println("Setup Complete.");
 }
 
@@ -19,13 +19,17 @@ void loop() {
     digitalWrite(8, HIGH);
   }*/
 
-  if (sSerial.available()) {
+
+  while (sSerial.available()) {
     Serial.write(sSerial.read());
-  }else{
-    Serial.println("sSerial:Nothing to Read");
   }
   
+  Serial.println("Read Complete");
+
   digitalWrite(8, LOW);
-  Serial.println(digitalRead(8));
+  //Serial.println(digitalRead(8));
+  //Serial.write("Test");
+  delay(500);
+  digitalWrite(8,HIGH);
   delay(500);
 }
