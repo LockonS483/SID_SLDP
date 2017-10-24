@@ -1,5 +1,9 @@
 #include <SoftwareSerial.h>
+
+const int triggerPin = 8;
+
 SoftwareSerial btSerial(4, 2); // RX, TX
+SoftwareSerial bcSerial(10, 11); // RX, TX
 
 String command = ""; // Stores response of the HC-06 Bluetooth device
 //byte readIn[];
@@ -15,12 +19,18 @@ int actualSize;
 //Barcode D - 
 
 void setup() {
+  //Initialize Trigger Pin.
+  pinMode(triggerPin, OUTPUT);
+  //Floating high, pull low for trigger.
+  digitalWrite(triggerPin, HIGH);
+  
   // Open serial communications:
   Serial.begin(9600);
   Serial.println("Input AT Commands.");
 
-  // The HC-06 defaults to 9600 according to the datasheet.
+  // Initializing Software Serial Ports.
   btSerial.begin(9600);
+  bcSerial.begin(9600);
 
   delay(150);
 
@@ -29,6 +39,21 @@ void setup() {
   SendMessage();
 }
 
+////////////////////////////////////
+///////// SOFTSERIAL READ //////////
+////////////////////////////////////
+String SerialReadtoString(SoftwareSerial reg){
+  String outStr;
+  while (reg.available()){
+    outStr += reg.read();
+  }
+  Serial.println("String read from register: " + outStr);
+  return outStr;
+}
+
+////////////////////////////////////
+////////////// MSG GEN /////////////
+////////////////////////////////////
 void GenerateMessage(String val){ //Only up to 8 character messages
   actualSize = 9 + 2 + val.length() + 3; //9 basic bytes + 2 opening bytes + message length + title length
   char charArray[val.length()];
@@ -67,6 +92,10 @@ void GenerateMessage(String val){ //Only up to 8 character messages
   tempMessage[actualSize-1] = 0x00;
 }
 
+
+////////////////////////////////////
+///////////// MSG SEND /////////////
+////////////////////////////////////
 void SendMessage(){
   //Copy temp array to a new array of the right size
   byte messageArray[actualSize];
@@ -79,6 +108,11 @@ void SendMessage(){
   btSerial.write(messageArray, actualSize);
 }
 
+
+
+////////////////////////////////////
+/////////////// LOOP ///////////////
+////////////////////////////////////
 void loop() {
   // Read device output if available.
   if (btSerial.available()) {
