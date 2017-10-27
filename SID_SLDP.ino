@@ -32,17 +32,18 @@ void setup() {
   btSerial.begin(9600);
   bcSerial.begin(9600);
 
-  delay(150);
+  delay(100);
 
-  GenerateMessage("52421454");
-  delay(50);
-  SendMessage();
+  //TestMessage
+  //GenerateMessage("52421454");
+  //delay(50);
+  //SendMessage();
 }
 
 ////////////////////////////////////
 ///////// SOFTSERIAL READ //////////
 ////////////////////////////////////
-String SerialReadtoString(SoftwareSerial reg){
+String SerialReadToString(SoftwareSerial reg){
   String outStr;
   while (reg.available()){
     outStr += reg.read();
@@ -126,6 +127,27 @@ void loop() {
     Serial.println(command);
     command = ""; // No repeats
   }
+
+  //If the barcode scanner sends something, send the message to bluetooth
+  if(bcSerial.available()){
+    String barcodeMessage = SerialReadToString(bcSerial);
+    GenerateMessage(barcodeMessage);
+    delay(40);
+    SendMessage();
+  }
+  //****************
+  //TESTING CODE: Triggers scanner
+  //****************
+  else{
+    if(triggerPin == HIGH){
+      triggerPin = LOW;
+      delay(1200);
+    }else{
+      triggerPin = HIGH;
+    }
+  }
+  //****************
+  //****************
 
   // Read user input if available.
   if (Serial.available()){
