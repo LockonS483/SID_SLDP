@@ -48,6 +48,8 @@ String SerialReadToString(SoftwareSerial reg){
   while (reg.available()){
     outStr += reg.read();
   }
+  outStr = outStr.substring(0, 8);
+
   Serial.println("String read from register: " + outStr);
   return outStr;
 }
@@ -131,20 +133,22 @@ void loop() {
   //If the barcode scanner sends something, send the message to bluetooth
   if(bcSerial.available()){
     String barcodeMessage = SerialReadToString(bcSerial);
-    GenerateMessage(barcodeMessage);
-    delay(40);
-    SendMessage();
+
+    if(barcodeMessage.length() > 0){
+      GenerateMessage(barcodeMessage);
+      delay(40);
+      SendMessage();
+    }
   }
   //****************
   //TESTING CODE: Triggers scanner
   //****************
-  else{
-    if(triggerPin == HIGH){
-      triggerPin = LOW;
-      delay(1200);
-    }else{
-      triggerPin = HIGH;
-    }
+  if(digitalRead(triggerPin) == HIGH){
+    digitalWrite(triggerPin, LOW);
+    delay(800);
+  }else{
+    digitalWrite(triggerPin, HIGH);
+    delay(800);
   }
   //****************
   //****************
