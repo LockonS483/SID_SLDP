@@ -30,8 +30,9 @@ void setup() {
 
   // Initializing Software Serial Ports.
   btSerial.begin(9600);
+  delay(100);
+  
   bcSerial.begin(9600);
-
   delay(100);
 
   //TestMessage
@@ -117,6 +118,7 @@ void SendMessage(){
 ////////////////////////////////////
 void loop() {
   // Read device output if available.
+  /*
   if (btSerial.available()) {
     while(btSerial.available()) { // While there is more to be read, keep reading.
       command += (byte)btSerial.read();
@@ -128,6 +130,7 @@ void loop() {
     Serial.println(command);
     command = ""; // No repeats
   }
+  */
 
   //If the barcode scanner sends something, send the message to bluetooth
   if(bcSerial.available()){
