@@ -43,10 +43,11 @@ void setup() {
 ////////////////////////////////////
 ///////// SOFTSERIAL READ //////////
 ////////////////////////////////////
-String SerialReadToString(SoftwareSerial reg){
+String SerialReadToString(){
   String outStr;
-  while (reg.available()){
-    outStr += reg.read();
+  while (bcSerial.available()){
+    outStr += bcSerial.read();
+    Serial.println(outStr);
   }
   outStr = outStr.substring(0, 8);
 
@@ -111,8 +112,6 @@ void SendMessage(){
   btSerial.write(messageArray, actualSize);
 }
 
-
-
 ////////////////////////////////////
 /////////////// LOOP ///////////////
 ////////////////////////////////////
@@ -132,7 +131,7 @@ void loop() {
 
   //If the barcode scanner sends something, send the message to bluetooth
   if(bcSerial.available()){
-    String barcodeMessage = SerialReadToString(bcSerial);
+    String barcodeMessage = SerialReadToString();
 
     if(barcodeMessage.length() > 0){
       GenerateMessage(barcodeMessage);
