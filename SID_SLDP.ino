@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include <Servo.h>
 
 const int triggerPin = 8;
 
@@ -18,6 +19,10 @@ int actualSize;
 //Barcode C - 
 //Barcode D - 
 
+Servo leftServo;
+Servo rightServo;
+
+
 void setup() {
   //Initialize Trigger Pin.
   pinMode(triggerPin, OUTPUT);
@@ -34,6 +39,11 @@ void setup() {
 
   delay(100);
 
+  leftServo.attach(9);
+  //leftServo.write(180); //Left Servo Forward (180);
+  rightServo.attach(6);
+  //rightServo.write(0); //Right Servo Forward (0);
+  
   //TestMessage
   //GenerateMessage("52421454");
   //delay(50);
@@ -115,6 +125,59 @@ void SendMessage(){
 }
 
 ////////////////////////////////////
+/////////// ServoControl ///////////
+////////////////////////////////////
+void ResetServos(){
+  rightServo.write(90);
+  leftServo.write(90);
+}
+
+void turn(int timeTurn, int dir){
+  rightServo.write(110);
+  leftServo.write(70);
+  delay(timeTurn);
+  ResetServos();
+}
+
+void forward(int blocks, int dir){
+  rightServo.write(90 - (80*dir));
+  leftServo.write(90 + (80*dir));
+  delay(800 * blocks);
+  ResetServos();
+}
+
+boolean CheckBT(){
+  int tries = 0;
+  //If the barcode scanner sends something, send the message to bluetooth
+  while(tries < 5){
+    if(bcSerial.available()){
+      String barcodeMessage = SerialReadToString();
+  
+      if(barcodeMessage.length() == 8){
+        GenerateMessage(barcodeMessage);
+        delay(40);
+        SendMessage();
+      }
+      return true;
+    }else{
+      delay(500);
+      tries++;
+    }
+  }
+
+  return false;
+}
+
+void TriggerBarcode(){
+  //****************
+  //TESTING CODE: Triggers scanner
+  //****************
+  digitalWrite(triggerPin, LOW);
+  delay(400);
+  digitalWrite(triggerPin, HIGH);
+}
+
+////////////////////////////////////
 /////////////// LOOP ///////////////
 ////////////////////////////////////
 void loop() {
@@ -131,26 +194,7 @@ void loop() {
     command = ""; // No repeats
   }
 
-  //If the barcode scanner sends something, send the message to bluetooth
-  if(bcSerial.available()){
-    String barcodeMessage = SerialReadToString();
-
-    if(barcodeMessage.length() == 8){
-      GenerateMessage(barcodeMessage);
-      delay(40);
-      SendMessage();
-    }
-  }
-  //****************
-  //TESTING CODE: Triggers scanner
-  //****************
-  if(digitalRead(triggerPin) == HIGH){
-    digitalWrite(triggerPin, LOW);
-    delay(800);
-  }else{
-    digitalWrite(triggerPin, HIGH);
-    delay(800);
-  }
+  
   //****************
   //****************
 
