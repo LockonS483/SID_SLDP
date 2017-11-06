@@ -56,7 +56,7 @@ void setup() {
   delay(500);
   turn(760, -1);
   delay(500);
-  forward(2, 1);
+  forwardBoost(2, 1);
   delay(500);
   turn(645, 1);
   delay(500);
@@ -65,6 +65,10 @@ void setup() {
   turn(690, -1);
   delay(500);
   forward(1, 1);
+  delay(500);
+  turn(750, -1);
+  delay(500);
+  TriggerBarcode();
   
   //TestMessage
   //GenerateMessage("52421454");
@@ -164,6 +168,13 @@ void forward(float blocks, int dir){
   rightServo.write(90 - ((35)*dir));
   leftServo.write(90 + ((35)*dir));
   delay(1200 * blocks);
+  ResetServos();
+}
+
+void forwardBoost(float blocks, int dir){
+  rightServo.write(90 - ((80)*dir));
+  leftServo.write(90 + ((65)*dir));
+  delay(1100 * blocks);
   ResetServos();
 }
 
