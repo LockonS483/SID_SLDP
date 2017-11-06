@@ -40,9 +40,31 @@ void setup() {
   delay(100);
 
   leftServo.attach(9);
-  //leftServo.write(180); //Left Servo Forward (180);
   rightServo.attach(6);
-  //rightServo.write(0); //Right Servo Forward (0);
+  delay(50);
+  //SetPower(179, 10);
+  forward(2.85, 1);
+  delay(500);
+  turn(740, -1);
+  delay(500);
+  forward(2.9, 1);
+  TriggerBarcode();
+  delay(500);
+  //CheckBT();
+  delay(500);
+  forward(0.65, -1);
+  delay(500);
+  turn(760, -1);
+  delay(500);
+  forward(2, 1);
+  delay(500);
+  turn(645, 1);
+  delay(500);
+  forward(1.05, 1);
+  delay(500);
+  turn(690, -1);
+  delay(500);
+  forward(1, 1);
   
   //TestMessage
   //GenerateMessage("52421454");
@@ -108,7 +130,6 @@ void GenerateMessage(String val){ //Only up to 8 character messages
   tempMessage[actualSize-1] = 0x00;
 }
 
-
 ////////////////////////////////////
 ///////////// MSG SEND /////////////
 ////////////////////////////////////
@@ -128,22 +149,27 @@ void SendMessage(){
 /////////// ServoControl ///////////
 ////////////////////////////////////
 void ResetServos(){
-  rightServo.write(90);
-  leftServo.write(90);
+  rightServo.write(89);
+  leftServo.write(89);
 }
 
 void turn(int timeTurn, int dir){
-  rightServo.write(110);
-  leftServo.write(70);
+  rightServo.write(90 + (30*dir));
+  leftServo.write(90 + (30*dir));
   delay(timeTurn);
   ResetServos();
 }
 
-void forward(int blocks, int dir){
-  rightServo.write(90 - (80*dir));
-  leftServo.write(90 + (80*dir));
-  delay(800 * blocks);
+void forward(float blocks, int dir){
+  rightServo.write(90 - ((35)*dir));
+  leftServo.write(90 + ((35)*dir));
+  delay(1200 * blocks);
   ResetServos();
+}
+
+void SetPower(int left, int right){
+  rightServo.write(left); //-
+  leftServo.write(right); //+
 }
 
 boolean CheckBT(){
@@ -197,7 +223,6 @@ void loop() {
   
   //****************
   //****************
-
   // Read user input if available.
   if (Serial.available()){
     delay(10); // The delay is necessary to get this working!
