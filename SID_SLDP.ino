@@ -210,7 +210,7 @@ void TriggerBarcode(){
   //TESTING CODE: Triggers scanner
   //****************
   digitalWrite(triggerPin, LOW);
-  delay(400);
+  delay(100);
   digitalWrite(triggerPin, HIGH);
 }
 
