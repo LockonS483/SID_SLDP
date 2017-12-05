@@ -260,43 +260,56 @@ void RobotMove(){
       turn(180, -1);
       break;
 
+    //RESET GYRO READINGS
     case 13:
-      forward(1, -180, 900, false);
+      forward(-1, 180, 1000, false);
       break;
-
     case 14:
-      turn(90, -1);
+      startypr[0] = ypr[0];
+      startypr[1] = ypr[1];
+      startypr[2] = ypr[2];
+      robotReady = true;
+      robotMove.setInterval(500);
+      Serial.println("///////////////" + String(YawAngle(getYaw(startypr))));
       break;
 
     case 15:
+      forward(1, 0, 900, false);
+      break;
+
+    case 16:
+      turn(-90, -1);
+      break;
+
+    case 17:
       resetServos();
       TriggerBarcode();
       robotMove.setInterval(1000);
       break;
-    case 16:
+    case 18:
       CheckBT();
       robotMove.setInterval(500);
       resetServos();
       break;
     
-    case 18:
-      turn(180, -1);
-      break;
-
     case 19:
-      forward(-1, 0, 950, false);
+      turn(0, 1);
       break;
 
     case 20:
-      turn(90, -1);
+      forward(-1, 0, 950, false);
       break;
 
     case 21:
+      turn(-90, -1);
+      break;
+
+    case 22:
       resetServos();
       TriggerBarcode();
       robotMove.setInterval(1000);
       break;
-    case 22:
+    case 23:
       CheckBT();
       robotMove.setInterval(500);
       resetServos();
