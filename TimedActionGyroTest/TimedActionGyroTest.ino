@@ -184,15 +184,16 @@ void UpdateGyro(){
 }
 
 /*void RobotMove(){
-  if(robotStep == 0){
-      forward(-1, 0, -8000, true);
+  if(robotStep%2 == 0){
+    TriggerBarcode();
+    robotMove.setInterval(1000);
   }else{
-    resetServos();
+    CheckBT();
+    robotMove.setInterval(500);
   }
   if(robotReady){
     robotStep ++;
   }
-    
 }*/
 
 void RobotMove(){
@@ -216,7 +217,7 @@ void RobotMove(){
       
     case 2:
       //forward(-1, 0.7, 30000, true);
-      forward(1, 0.7, 3750, true);
+      forward(1, 0.7, 3550, true);
       break;
       
     case 3:
@@ -226,59 +227,56 @@ void RobotMove(){
     case 4:
       forward(1, -89, 3700, true);
       break;
-      
+
     case 5:
+      forwardT(1, 800);
+      break;
+      
+    case 6:
       resetServos();
       TriggerBarcode();
       robotMove.setInterval(1000);
       break;
-    case 6:
+    case 7:
       CheckBT();
       robotMove.setInterval(500);
       resetServos();
       break;
-
-    case 7:
-      forward(-1, -90, 880, false);
-      break;
+    
     case 8:
-      turn(180, -1);
+      forward(-1, -90, 900, false);
       break;
     case 9:
-      forward(1, 182, 2200, false);
+      turn(180, -1);
+      break;
+    case 10:
+      forward(1, 182, 2100, false);
       break;
 
-    case 10:
+///////////////////////
+
+    case 11:
       turn(-90, 1);
       break;
 
-    case 11:
-      forward(1, -90, 1200, false);
+    case 12:
+      forward(1, -90, 1050, false);
       break;  
 
-    case 12:
+    case 13:
       turn(180, -1);
       break;
 
-    //RESET GYRO READINGS
-    case 13:
-      forward(-1, 180, 1000, false);
-      break;
     case 14:
-      startypr[0] = ypr[0];
-      startypr[1] = ypr[1];
-      startypr[2] = ypr[2];
-      robotReady = true;
-      robotMove.setInterval(500);
-      Serial.println("///////////////" + String(YawAngle(getYaw(startypr))));
+      forward(1, 180, 550, false);
       break;
 
     case 15:
-      forward(1, 0, 900, false);
+      turn(90, -1);
       break;
 
     case 16:
-      turn(-90, -1);
+      forward(1, 90, 1100, false);
       break;
 
     case 17:
@@ -291,30 +289,34 @@ void RobotMove(){
       robotMove.setInterval(500);
       resetServos();
       break;
-    
-    case 19:
-      turn(0, 1);
-      break;
 
+    case 19:
+      forward(-1, 90, 1250, false);
+      break;
+    
     case 20:
-      forward(-1, 0, 950, false);
+      turn(180, 1);
       break;
 
     case 21:
-      turn(-90, -1);
+      forward(-1, 180, 1500, false);
       break;
 
     case 22:
+      turn(90, -1);
+      break;
+
+    case 23:
       resetServos();
       TriggerBarcode();
       robotMove.setInterval(1000);
       break;
-    case 23:
+    case 24:
       CheckBT();
       robotMove.setInterval(500);
       resetServos();
       break;
-    
+      
     default:
       Serial.println("DEFAULT");
       break;
@@ -358,9 +360,8 @@ void forward(int dir, float rotation, unsigned long timeF, boolean offset){
       rightServo.write(90 - ((90)*dir));
     }else{
       leftServo.write(90 + ((90)*dir));
-      rightServo.write(90 - ((88.5)*dir));
+      rightServo.write(90 - ((60)*dir));
     }
-    
     
     Serial.println("TimeF: " + String(timeF));
     Serial.println(millis());
@@ -404,6 +405,13 @@ void forward(int dir, float rotation, unsigned long timeF, boolean offset){
   }
 }
 
+void forwardT(int dir, int t){
+  leftServo.write(90 + ((90)*dir));
+  rightServo.write(90 - ((90)*dir));
+  robotMove.setInterval(t);
+}
+
+
 void turn(float turnTarget, int dir){
   if(!turning){
     targetAngle = YawAngle(YawAngle(getYaw(startypr)) + turnTarget);
@@ -416,26 +424,19 @@ void turn(float turnTarget, int dir){
         dir = 1;
       }
     }
-    if(dir != 0){
-      rightServo.write(90 + (6*dir));
-      leftServo.write(90 + (6*dir));
+    if(abs((YawAngle(getYaw(ypr)) - targetAngle)) > 5){
+      if(dir == 1){
+        rightServo.write(90 + (6*dir));
+        leftServo.write(90 + (15*dir));
+      }else{
+        rightServo.write(90 + (15*dir));
+        leftServo.write(90 + (7*dir));
+      }
       robotReady = false;
       turning = true;
     }else{
-      if(abs((YawAngle(getYaw(ypr)) - targetAngle)) > 5){
-        if(dir == 1){
-          rightServo.write(90 + (4*dir));
-          leftServo.write(90 + (10*dir));
-        }else{
-          rightServo.write(90 + (10*dir));
-          leftServo.write(90 + (6*dir));
-        }
-        robotReady = false;
-        turning = true;
-      }else{
-        robotReady = true;
-        turning = false;
-      }
+      robotReady = true;
+      turning = false;
     }
   }else if(abs((YawAngle(getYaw(ypr)) - targetAngle)) < angleEpsilon){
     robotReady = true;
@@ -467,11 +468,16 @@ void checkRotation(float rotation){
 ////Barcode and Bluetooth////
 /////////////////////////////
 void TriggerBarcode(){
+  robotReady = false;
+  while(btSerial.available() > 0){
+    char t = btSerial.read();
+  }
+  robotReady = true;
   //****************
   //TESTING CODE: Triggers scanner
   //****************
   digitalWrite(triggerPin, LOW);
-  delay(200);
+  delay(800);
   digitalWrite(triggerPin, HIGH);
 }
 
